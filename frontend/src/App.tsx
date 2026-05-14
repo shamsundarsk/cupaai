@@ -7,6 +7,8 @@ import { PlantTwinPage } from './pages/PlantTwinPage'
 import { RevenuePage } from './pages/RevenuePage'
 import { SustainabilityPage } from './pages/SustainabilityPage'
 import { HazardsPage } from './pages/HazardsPage'
+import { SimulationPage } from './pages/SimulationPage'
+import { OptimizationPage } from './pages/OptimizationPage'
 
 function App() {
   useTelemetry()
@@ -24,8 +26,10 @@ function App() {
             <Route path="/" element={<OverviewPage />} />
             <Route path="/plant" element={<PlantTwinPage />} />
             <Route path="/revenue" element={<RevenuePage />} />
-            <Route path="/sustainability" element={<SustainabilityPage />} />
             <Route path="/hazards" element={<HazardsPage />} />
+            <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="/optimization" element={<OptimizationPage />} />
+            <Route path="/sustainability" element={<SustainabilityPage />} />
           </Routes>
         </main>
       </div>
