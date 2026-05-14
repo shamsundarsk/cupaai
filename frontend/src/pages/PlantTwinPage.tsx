@@ -28,7 +28,7 @@ export function PlantTwinPage() {
 
       {/* 3D Canvas */}
       <div className="flex-1 glass-panel relative overflow-hidden rounded-xl min-h-[500px]">
-        <PlantScene onStationClick={setSelectedStation} />
+        <PlantScene onStationClick={setSelectedStation} modalOpen={selectedStation !== null} />
 
         {/* Machine Detail Modal */}
         <MachineDetailModal

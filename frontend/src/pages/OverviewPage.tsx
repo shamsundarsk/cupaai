@@ -22,8 +22,8 @@ export function OverviewPage() {
     <div className="space-y-4">
       {/* Page Title */}
       <div>
-        <h2 className="text-xl font-bold text-text-primary">Plant Overview</h2>
-        <p className="text-sm text-text-muted">Real-time summary of all recycling operations</p>
+        <h2 className="text-lg font-semibold text-text-bright">Plant Overview</h2>
+        <p className="text-[11px] text-text-muted">Real-time summary of all recycling operations</p>
       </div>
 
       {/* Top Row — Key Metrics */}
@@ -33,28 +33,28 @@ export function OverviewPage() {
           value={`$${totalRevenue.toFixed(2)}`}
           subtitle="From recovered materials"
           color="text-revenue-green"
-          bgColor="bg-revenue-green/10"
+          bgColor="bg-revenue-green"
         />
         <MetricCard
           title="Items Processing"
           value={String(processingBatteries.length)}
           subtitle={`${intakeBatteries.length} waiting at intake`}
           color="text-accent-cyan"
-          bgColor="bg-accent-cyan/10"
+          bgColor="bg-accent-cyan"
         />
         <MetricCard
           title="Plant Risk"
           value={`${riskScore.toFixed(0)}/100`}
           subtitle={riskScore > 60 ? 'Elevated — check hazards' : 'Normal operations'}
           color={riskScore > 60 ? 'text-hazard-red' : 'text-accent-green'}
-          bgColor={riskScore > 60 ? 'bg-hazard-red/10' : 'bg-accent-green/10'}
+          bgColor={riskScore > 60 ? 'bg-hazard-red' : 'bg-accent-green'}
         />
         <MetricCard
           title="Hazards Isolated"
           value={String(hazardBatteries.length)}
           subtitle="Batteries in containment"
-          color="text-accent-amber"
-          bgColor="bg-accent-amber/10"
+          color="text-warning-amber"
+          bgColor="bg-warning-amber"
         />
       </div>
 
@@ -198,10 +198,11 @@ function MetricCard({ title, value, subtitle, color, bgColor }: {
   title: string; value: string; subtitle: string; color: string; bgColor: string
 }) {
   return (
-    <div className={`glass-panel p-4 border-l-4 ${bgColor} border-l-current`} style={{ borderLeftColor: 'currentColor' }}>
-      <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1">{title}</div>
-      <div className={`text-xl font-bold font-mono ${color}`}>{value}</div>
-      <div className="text-[10px] text-text-muted mt-1">{subtitle}</div>
+    <div className="glass-panel p-4 relative overflow-hidden">
+      <div className={`absolute top-0 left-0 w-1 h-full ${bgColor}`} />
+      <div className="text-[9px] text-text-muted uppercase tracking-widest font-medium mb-1.5">{title}</div>
+      <div className={`text-xl font-bold font-mono ${color} leading-none`}>{value}</div>
+      <div className="text-[10px] text-text-muted mt-2">{subtitle}</div>
     </div>
   )
 }

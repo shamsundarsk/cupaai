@@ -36,9 +36,11 @@ export function SimulationPage() {
   const [whatIfLoading, setWhatIfLoading] = useState(false)
 
   // What-if parameters
-  const [conveyorSpeed, setConveyorSpeed] = useState(1.0)
-  const [intakeRate, setIntakeRate] = useState(1.0)
+  const [conveyorSpeed, setConveyorSpeed] = useState(1.2)
+  const [intakeRate, setIntakeRate] = useState(500)
   const [shutdownStation, setShutdownStation] = useState('')
+  const [furnaceTemp, setFurnaceTemp] = useState(450)
+  const [shredderLoad, setShredderLoad] = useState(70)
 
   // Auto-refresh prediction every 10 seconds
   const fetchPrediction = useCallback(async () => {
@@ -61,8 +63,12 @@ export function SimulationPage() {
     setWhatIfLoading(true)
     try {
       const params = new URLSearchParams()
-      if (conveyorSpeed !== 1.0) params.set('conveyor_speed_factor', String(conveyorSpeed))
-      if (intakeRate !== 1.0) params.set('intake_rate_factor', String(intakeRate))
+      // Convert real values to factors relative to defaults
+      const conveyorFactor = conveyorSpeed / 1.2  // default is 1.2 m/s
+      const intakeFactor = intakeRate / 500        // default is 500 items/day
+      
+      if (Math.abs(conveyorFactor - 1.0) > 0.05) params.set('conveyor_speed_factor', String(conveyorFactor.toFixed(2)))
+      if (Math.abs(intakeFactor - 1.0) > 0.05) params.set('intake_rate_factor', String(intakeFactor.toFixed(2)))
       if (shutdownStation) params.set('shutdown_station', shutdownStation)
 
       const res = await fetch(`${API_URL}/api/twin/whatif?${params}`, { method: 'POST' })
@@ -157,47 +163,77 @@ export function SimulationPage() {
         <div className="grid grid-cols-3 gap-4 mb-4">
           {/* Conveyor Speed */}
           <div>
-            <label className="text-[10px] text-text-muted uppercase block mb-1">Conveyor Speed</label>
-            <input
-              type="range" min="0.5" max="2.0" step="0.1" value={conveyorSpeed}
-              onChange={(e) => setConveyorSpeed(Number(e.target.value))}
-              className="w-full accent-accent-cyan"
-            />
-            <div className="text-xs font-mono text-text-primary text-center">{(conveyorSpeed * 100).toFixed(0)}%</div>
+            <label className="text-[10px] text-text-muted uppercase block mb-1">Conveyor Speed (m/s)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number" min={0.3} max={2.5} step={0.1} value={conveyorSpeed}
+                onChange={(e) => setConveyorSpeed(Number(e.target.value))}
+                className="w-full bg-bg-primary border border-border rounded px-2 py-1.5 text-xs text-text-primary font-mono"
+              />
+            </div>
+            <span className="text-[9px] text-text-muted">Default: 1.2 m/s</span>
           </div>
 
           {/* Intake Rate */}
           <div>
-            <label className="text-[10px] text-text-muted uppercase block mb-1">Intake Rate</label>
-            <input
-              type="range" min="0.5" max="2.0" step="0.1" value={intakeRate}
-              onChange={(e) => setIntakeRate(Number(e.target.value))}
-              className="w-full accent-accent-cyan"
-            />
-            <div className="text-xs font-mono text-text-primary text-center">{(intakeRate * 100).toFixed(0)}%</div>
+            <label className="text-[10px] text-text-muted uppercase block mb-1">Intake Rate (items/day)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number" min={100} max={2000} step={50} value={intakeRate}
+                onChange={(e) => setIntakeRate(Number(e.target.value))}
+                className="w-full bg-bg-primary border border-border rounded px-2 py-1.5 text-xs text-text-primary font-mono"
+              />
+            </div>
+            <span className="text-[9px] text-text-muted">Default: 500 items/day</span>
           </div>
 
           {/* Shutdown Station */}
           <div>
-            <label className="text-[10px] text-text-muted uppercase block mb-1">Shutdown Station</label>
+            <label className="text-[10px] text-text-muted uppercase block mb-1">Shutdown for Maintenance</label>
             <select
               value={shutdownStation}
               onChange={(e) => setShutdownStation(e.target.value)}
-              className="w-full bg-bg-primary border border-border rounded px-2 py-1 text-xs text-text-primary"
+              className="w-full bg-bg-primary border border-border rounded px-2 py-1.5 text-xs text-text-primary"
             >
-              <option value="">None</option>
+              <option value="">None (all running)</option>
               <option value="shredder">Shredder</option>
               <option value="lead_furnace">Lead Furnace</option>
-              <option value="magnetic_sep">Magnetic Sep</option>
+              <option value="magnetic_sep">Magnetic Separator</option>
+              <option value="density_sep">Density Separator</option>
               <option value="plastic_line">Plastic Line</option>
+              <option value="lithium_recovery">Lithium Recovery</option>
+              <option value="copper_recovery">Copper Recovery</option>
             </select>
+            <span className="text-[9px] text-text-muted">Simulate maintenance downtime</span>
+          </div>
+        </div>
+
+        {/* Second row of inputs */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="text-[10px] text-text-muted uppercase block mb-1">Furnace Target Temp (°C)</label>
+            <input
+              type="number" min={300} max={1000} step={25} value={furnaceTemp}
+              onChange={(e) => setFurnaceTemp(Number(e.target.value))}
+              className="w-full bg-bg-primary border border-border rounded px-2 py-1.5 text-xs text-text-primary font-mono"
+            />
+            <span className="text-[9px] text-text-muted">Optimal: 450-600°C • Max safe: 900°C</span>
+          </div>
+          <div>
+            <label className="text-[10px] text-text-muted uppercase block mb-1">Shredder Max Load (%)</label>
+            <input
+              type="number" min={30} max={100} step={5} value={shredderLoad}
+              onChange={(e) => setShredderLoad(Number(e.target.value))}
+              className="w-full bg-bg-primary border border-border rounded px-2 py-1.5 text-xs text-text-primary font-mono"
+            />
+            <span className="text-[9px] text-text-muted">Default: 70% • Above 85% risks overheating</span>
           </div>
         </div>
 
         <button
           onClick={runWhatIf}
-          disabled={whatIfLoading || (conveyorSpeed === 1.0 && intakeRate === 1.0 && !shutdownStation)}
-          className="px-4 py-2 bg-accent-cyan/20 border border-accent-cyan/40 rounded-lg text-xs text-accent-cyan hover:bg-accent-cyan/30 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={whatIfLoading || (conveyorSpeed === 1.2 && intakeRate === 500 && !shutdownStation && furnaceTemp === 450 && shredderLoad === 70)}
+          className="px-4 py-2 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-xs text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed font-medium"
         >
           {whatIfLoading ? 'Simulating...' : '▶ Run Scenario'}
         </button>

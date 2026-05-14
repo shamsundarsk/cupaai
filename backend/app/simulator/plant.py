@@ -19,19 +19,19 @@ from app.economics.revenue import calculate_recovery_revenue
 
 # Processing time per station (in ticks at 2Hz = seconds/2)
 PROCESSING_TICKS = {
-    StationId.INTAKE: 4,
-    StationId.INSPECTION: 6,
-    StationId.SORTING: 3,
-    StationId.CONVEYOR_A: 5,
-    StationId.CONVEYOR_B: 5,
-    StationId.SHREDDER: 10,
-    StationId.MAGNETIC_SEP: 8,
-    StationId.DENSITY_SEP: 8,
-    StationId.LEAD_FURNACE: 20,
-    StationId.LITHIUM_RECOVERY: 15,
-    StationId.COPPER_RECOVERY: 12,
-    StationId.PLASTIC_LINE: 10,
-    StationId.HAZARD_ISOLATION: 30,
+    StationId.INTAKE: 3,
+    StationId.INSPECTION: 4,
+    StationId.SORTING: 2,
+    StationId.CONVEYOR_A: 3,
+    StationId.CONVEYOR_B: 3,
+    StationId.SHREDDER: 6,
+    StationId.MAGNETIC_SEP: 5,
+    StationId.DENSITY_SEP: 5,
+    StationId.LEAD_FURNACE: 10,
+    StationId.LITHIUM_RECOVERY: 8,
+    StationId.COPPER_RECOVERY: 7,
+    StationId.PLASTIC_LINE: 6,
+    StationId.HAZARD_ISOLATION: 15,
     StationId.STORAGE: 999,
 }
 
@@ -107,19 +107,19 @@ class PlantSimulator:
         self.plant_risk_score: float = 10.0
 
         # Intake scheduling
-        self._next_batch_tick: int = 10
-        self._batch_interval: int = 20  # ticks between batches
+        self._next_batch_tick: int = 6
+        self._batch_interval: int = 10  # ticks between batches (faster flow)
 
         # Sensor cache
         self._sensor_readings: list[SensorReading] = []
 
         # Initial batch
-        self._spawn_intake_batch(5)
+        self._spawn_intake_batch(12)
 
     def _spawn_intake_batch(self, size: int = None):
         """Spawn a new batch of incoming materials."""
         if size is None:
-            size = random.randint(3, 8)
+            size = random.randint(5, 12)
         batch = spawn_batch(size)
         for b in batch:
             self.batteries.append(b)

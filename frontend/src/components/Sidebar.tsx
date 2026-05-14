@@ -1,65 +1,107 @@
 import { NavLink } from 'react-router-dom'
 import { usePlantStore } from '../store/plantStore'
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Overview', icon: '📊', description: 'Live summary' },
-  { path: '/plant', label: 'Plant Twin', icon: '🏭', description: '3D process view' },
-  { path: '/simulation', label: 'Simulation', icon: '🔮', description: 'Predict & what-if' },
-  { path: '/optimization', label: 'Optimization', icon: '🤖', description: 'AI recommendations' },
-  { path: '/revenue', label: 'Revenue', icon: '💰', description: 'Income & recovery' },
-  { path: '/hazards', label: 'Hazards', icon: '⚠️', description: 'Safety & alerts' },
-  { path: '/sustainability', label: 'Sustainability', icon: '🌱', description: 'Environmental impact' },
+const NAV_SECTIONS = [
+  {
+    title: 'Operations',
+    items: [
+      { path: '/', label: 'Overview', icon: '◉' },
+      { path: '/plant', label: 'Plant Twin', icon: '⬡' },
+      { path: '/hazards', label: 'Safety', icon: '△' },
+    ],
+  },
+  {
+    title: 'Intelligence',
+    items: [
+      { path: '/simulation', label: 'Simulation', icon: '◈' },
+      { path: '/optimization', label: 'Optimize', icon: '⟡' },
+      { path: '/shifts', label: 'Shift History', icon: '◫' },
+    ],
+  },
+  {
+    title: 'Business',
+    items: [
+      { path: '/revenue', label: 'Revenue', icon: '◆' },
+      { path: '/calculator', label: 'ROI Calculator', icon: '▣' },
+      { path: '/sustainability', label: 'ESG', icon: '○' },
+    ],
+  },
+  {
+    title: 'Tools',
+    items: [
+      { path: '/story', label: 'Story Mode', icon: '▶' },
+      { path: '/report', label: 'Reports', icon: '◧' },
+    ],
+  },
 ]
 
 export function Sidebar() {
   const connected = usePlantStore((s) => s.connected)
+  const telemetry = usePlantStore((s) => s.telemetry)
+  const riskScore = telemetry?.plant_risk_score || 0
 
   return (
-    <aside className="w-[200px] bg-bg-secondary border-r border-border flex flex-col">
+    <aside className="w-[210px] bg-bg-secondary border-r border-border flex flex-col">
       {/* Brand */}
-      <div className="p-4 border-b border-border">
-        <h1 className="text-lg font-bold text-accent-cyan tracking-tight">COUP AI</h1>
-        <p className="text-[10px] text-text-muted mt-0.5">Digital Twin Platform</p>
-        <div className="flex items-center gap-1.5 mt-2">
-          <div className={`w-2 h-2 rounded-full ${connected ? 'bg-accent-green pulse-live' : 'bg-hazard-red'}`} />
-          <span className="text-[10px] text-text-secondary">{connected ? 'Synchronized' : 'Offline'}</span>
+      <div className="px-4 py-3.5 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-md bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center">
+            <span className="text-accent-cyan text-xs font-bold">C</span>
+          </div>
+          <div>
+            <h1 className="text-[13px] font-bold text-text-bright tracking-wide">COUP AI</h1>
+            <p className="text-[8px] text-text-muted font-medium uppercase tracking-[0.15em]">Digital Twin</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Status */}
+      <div className="px-4 py-2.5 border-b border-border-subtle">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <div className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-accent-green pulse-live' : 'bg-hazard-red'}`} />
+            <span className="text-[9px] text-text-muted">{connected ? 'Synchronized' : 'Offline'}</span>
+          </div>
+          <span className={`text-[9px] font-mono ${riskScore > 60 ? 'text-hazard-red' : 'text-text-muted'}`}>
+            Risk: {riskScore.toFixed(0)}
+          </span>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-sm ${
-                isActive
-                  ? 'bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20'
-                  : 'text-text-secondary hover:bg-bg-card hover:text-text-primary border border-transparent'
-              }`
-            }
-          >
-            <span className="text-base">{item.icon}</span>
-            <div>
-              <div className="font-medium text-xs">{item.label}</div>
-              <div className="text-[9px] text-text-muted">{item.description}</div>
+      <nav className="flex-1 py-2 overflow-y-auto">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.title} className="mb-1">
+            <div className="px-4 py-1.5">
+              <span className="text-[8px] text-text-muted uppercase tracking-[0.2em] font-semibold">{section.title}</span>
             </div>
-          </NavLink>
+            {section.items.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 mx-2 px-2.5 py-[7px] rounded-md transition-all duration-100 ${
+                    isActive
+                      ? 'bg-accent-cyan/8 text-accent-cyan'
+                      : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                  }`
+                }
+              >
+                <span className="text-[10px] w-3.5 text-center opacity-50">{item.icon}</span>
+                <span className="text-[11px] font-medium">{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
-      {/* Twin Status Footer */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-1.5 mb-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-accent-green" />
-          <span className="text-[9px] text-text-muted">Twin: Synchronized</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-accent-cyan" />
-          <span className="text-[9px] text-text-muted">AI: Active (94.2%)</span>
-        </div>
-        <p className="text-[8px] text-text-muted text-center mt-2">v1.0.0 • COUP AI</p>
+      {/* Footer */}
+      <div className="px-4 py-2.5 border-t border-border-subtle flex items-center justify-between">
+        <span className="text-[8px] text-text-muted">v1.0.0</span>
+        <span className="text-[8px] text-text-muted flex items-center gap-1">
+          <span className="w-1 h-1 rounded-full bg-accent-green" />
+          14 sensors
+        </span>
       </div>
     </aside>
   )

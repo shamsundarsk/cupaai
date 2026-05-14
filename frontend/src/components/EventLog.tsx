@@ -5,17 +5,18 @@ export function EventLog() {
   const events = telemetry?.events || []
 
   return (
-    <div className="h-[80px] border-t border-border bg-bg-secondary/80 backdrop-blur-sm px-4 py-2 overflow-hidden">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-[10px] text-text-muted uppercase tracking-wider">Event Log</span>
+    <div className="glass-panel p-3">
+      <div className="flex items-center gap-2 mb-2">
         <div className="w-1.5 h-1.5 rounded-full bg-accent-cyan pulse-live" />
+        <span className="text-[9px] text-text-muted uppercase tracking-wider font-medium">Event Stream</span>
+        <span className="text-[9px] text-text-muted ml-auto">{events.length} events</span>
       </div>
-      <div className="space-y-0.5 overflow-y-auto max-h-[50px]">
+      <div className="space-y-0.5 max-h-[120px] overflow-y-auto">
         {events.length === 0 ? (
-          <div className="text-[10px] text-text-muted">Waiting for events...</div>
+          <div className="text-[10px] text-text-muted italic">Awaiting events...</div>
         ) : (
           events.slice().reverse().map((event, i) => (
-            <div key={i} className="text-[11px] font-mono text-text-secondary truncate">
+            <div key={i} className="text-[10px] font-mono text-text-secondary py-0.5 border-b border-border-subtle/50 last:border-0 leading-relaxed">
               {event}
             </div>
           ))
