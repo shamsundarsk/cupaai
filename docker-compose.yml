@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    container_name: urbanmine-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SIM_TICK_HZ=2
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: urbanmine-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    environment:
+      - VITE_WS_URL=ws://localhost:8000/ws/telemetry
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
