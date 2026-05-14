@@ -135,3 +135,7 @@ class PlantTelemetry(BaseModel):
     total_energy_kwh: float
     plant_risk_score: float
     events: list[str]  # recent event log messages
+    total_input_weight_kg: float = 0.0
+    total_waste_kg: float = 0.0
+    total_items_entered: int = 0
+    total_items_completed: int = 0

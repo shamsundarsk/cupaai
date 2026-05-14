@@ -101,6 +101,13 @@ class PlantSimulator:
         self.total_co2_avoided_kg: float = 0.0
         self.total_landfill_diverted_kg: float = 0.0
 
+        # Actual tracking for real efficiency
+        self.total_input_weight_kg: float = 0.0  # total weight of all items that entered
+        self.total_items_entered: int = 0
+        self.total_items_completed: int = 0
+        self.total_items_wasted: int = 0  # items that went to disposal/couldn't be recovered
+        self.total_waste_kg: float = 0.0  # actual unrecoverable material
+
         # Hazard tracking
         self.active_alerts: list[HazardAlert] = []
         self.hazards_prevented: int = 0
@@ -124,6 +131,8 @@ class PlantSimulator:
         for b in batch:
             self.batteries.append(b)
             self.battery_ticks[b.id] = 0
+            self.total_input_weight_kg += b.weight_kg
+            self.total_items_entered += 1
         total_weight = sum(b.weight_kg for b in batch)
         self.event_bus.emit(
             f"Intake: {size} items received ({total_weight:.1f} kg)",
@@ -174,12 +183,13 @@ class PlantSimulator:
 
             # Simulate battery degradation for damaged items
             if battery.health == "damaged" and station != StationId.HAZARD_ISOLATION:
-                battery.temperature_c += random.uniform(0.8, 2.5)
-                battery.gas_ppm += random.uniform(0.5, 2.0)
-                battery.hazard_score = min(100, battery.hazard_score + random.uniform(2, 6))
+                battery.temperature_c += random.uniform(0.6, 1.8)
+                battery.gas_ppm += random.uniform(0.4, 1.5)
+                battery.hazard_score = min(100, battery.hazard_score + random.uniform(1.5, 4))
             elif battery.health == "degraded":
-                battery.temperature_c += random.uniform(0.0, 0.3)
-                battery.hazard_score = min(50, battery.hazard_score + random.uniform(0, 1))
+                # Degraded items rarely escalate to hazards in real plants
+                battery.temperature_c += random.uniform(0.0, 0.15)
+                battery.hazard_score = min(35, battery.hazard_score + random.uniform(0, 0.4))
 
             # Hazard detection
             if battery.hazard_score > 70 and battery.current_station != StationId.HAZARD_ISOLATION:
@@ -240,8 +250,12 @@ class PlantSimulator:
             reading = generate_sensor_reading(station_id, load_factor, stress, hazard_nearby)
             self._sensor_readings.append(reading)
 
-            # Accumulate energy
-            self.total_energy_kwh += reading.power_kw / 3600  # per tick at ~0.5s
+            # Accumulate energy: power_kw * time_hours_per_tick
+            # Each tick is 0.5 real seconds. In sim-time that's 15 seconds.
+            self.total_energy_kwh += reading.power_kw * (15.0 / 3600.0)
+        
+        # Base plant load (HVAC, lighting, control systems, ventilation) — always on
+        self.total_energy_kwh += 45.0 * (15.0 / 3600.0)  # 45kW base load
 
         # Update idle stations
         active_stations = {b.current_station.value for b in self.batteries}
@@ -266,6 +280,10 @@ class PlantSimulator:
             total_energy_kwh=round(self.total_energy_kwh, 2),
             plant_risk_score=round(self.plant_risk_score, 1),
             events=self.event_bus.recent(10),
+            total_input_weight_kg=round(self.total_input_weight_kg, 2),
+            total_waste_kg=round(self.total_waste_kg, 2),
+            total_items_entered=self.total_items_entered,
+            total_items_completed=self.total_items_completed,
         )
 
     def _advance_battery(self, battery: BatteryItem):
@@ -321,49 +339,97 @@ class PlantSimulator:
 
     def _record_recovery(self, battery: BatteryItem):
         """Record material recovery when battery exits system."""
-        purity = random.uniform(0.92, 0.99)
+        self.total_items_completed += 1
+        
+        # Real-world recovery rates by material type (industry data)
+        # Lead-acid: 95-99% lead recovery
+        # Lithium-ion: 50-80% lithium recovery (hydrometallurgy is lossy)
+        # Copper from PCB: 85-95% recovery
+        # Cobalt: 70-90% recovery
+        # Plastic: 60-80% recovery (contamination losses)
+        
+        recovery_rates = {
+            "lead": random.uniform(0.93, 0.98),      # lead-acid is very efficient
+            "lithium": random.uniform(0.50, 0.75),   # lithium recovery is hard
+            "copper": random.uniform(0.82, 0.93),    # good but not perfect
+            "cobalt": random.uniform(0.68, 0.88),    # moderate
+            "plastic": random.uniform(0.55, 0.75),   # lots of contamination loss
+        }
+        
+        total_recoverable_in_item = (
+            battery.lead_content_kg + battery.lithium_content_kg +
+            battery.copper_content_kg + battery.cobalt_content_kg +
+            battery.plastic_content_kg
+        )
+        total_actually_recovered = 0.0
 
         if battery.lead_content_kg > 0:
-            recovered = battery.lead_content_kg * purity
-            revenue = calculate_recovery_revenue("lead", recovered, purity)
+            rate = recovery_rates["lead"]
+            recovered = battery.lead_content_kg * rate
+            total_actually_recovered += recovered
+            revenue = calculate_recovery_revenue("lead", recovered, rate)
             self.recovery_totals["lead"] += recovered
             self.revenue_totals["lead"] += revenue
             if recovered > 1.0:
                 self.event_bus.emit(
-                    f"💰 Lead recovered: {recovered:.2f} kg (${revenue:.2f})",
+                    f"💰 Lead recovered: {recovered:.2f} kg (${revenue:.2f}) [{rate*100:.0f}% yield]",
                     severity="revenue", station="lead_furnace", battery_id=battery.id
                 )
 
         if battery.lithium_content_kg > 0:
-            recovered = battery.lithium_content_kg * purity
-            revenue = calculate_recovery_revenue("lithium", recovered, purity)
+            rate = recovery_rates["lithium"]
+            recovered = battery.lithium_content_kg * rate
+            total_actually_recovered += recovered
+            revenue = calculate_recovery_revenue("lithium", recovered, rate)
             self.recovery_totals["lithium"] += recovered
             self.revenue_totals["lithium"] += revenue
 
         if battery.copper_content_kg > 0:
-            recovered = battery.copper_content_kg * purity
-            revenue = calculate_recovery_revenue("copper", recovered, purity)
+            rate = recovery_rates["copper"]
+            recovered = battery.copper_content_kg * rate
+            total_actually_recovered += recovered
+            revenue = calculate_recovery_revenue("copper", recovered, rate)
             self.recovery_totals["copper"] += recovered
             self.revenue_totals["copper"] += revenue
 
         if battery.cobalt_content_kg > 0:
-            recovered = battery.cobalt_content_kg * purity
-            revenue = calculate_recovery_revenue("cobalt", recovered, purity)
+            rate = recovery_rates["cobalt"]
+            recovered = battery.cobalt_content_kg * rate
+            total_actually_recovered += recovered
+            revenue = calculate_recovery_revenue("cobalt", recovered, rate)
             self.recovery_totals["cobalt"] += recovered
             self.revenue_totals["cobalt"] += revenue
 
         if battery.plastic_content_kg > 0:
-            recovered = battery.plastic_content_kg * purity * 0.8  # lower plastic recovery
-            revenue = calculate_recovery_revenue("plastic", recovered, purity)
+            rate = recovery_rates["plastic"]
+            recovered = battery.plastic_content_kg * rate
+            total_actually_recovered += recovered
+            revenue = calculate_recovery_revenue("plastic", recovered, rate)
             self.recovery_totals["plastic"] += recovered
             self.revenue_totals["plastic"] += revenue
 
-        # Sustainability metrics
-        total_recovered = sum([
-            battery.lead_content_kg, battery.lithium_content_kg,
-            battery.copper_content_kg, battery.cobalt_content_kg,
-            battery.plastic_content_kg
-        ]) * purity
-        self.total_landfill_diverted_kg += total_recovered
-        # CO2 factor: ~3.5 kg CO2 avoided per kg of metal recycled vs virgin mining
-        self.total_co2_avoided_kg += total_recovered * 3.5
+        # Waste = what we couldn't recover from the recoverable portion
+        waste_from_recovery = total_recoverable_in_item - total_actually_recovered
+        # Plus the non-recoverable portion of the battery (casing, electrolyte, etc.)
+        non_recoverable = battery.weight_kg - total_recoverable_in_item
+        total_waste = waste_from_recovery + non_recoverable * 0.7  # 70% of non-recoverable goes to waste, 30% is inert
+        
+        self.total_waste_kg += total_waste
+        self.total_landfill_diverted_kg += total_actually_recovered  # what we saved from landfill
+        
+        # CO2 avoided: based on actual recovered amounts vs virgin mining
+        # These are real LCA figures (kg CO2 per kg material)
+        co2_factors = {"lead": 1.7, "lithium": 5.3, "copper": 3.5, "cobalt": 8.1, "plastic": 1.2}
+        co2_saved = 0.0
+        for mat, factor in co2_factors.items():
+            co2_saved += self.recovery_totals.get(mat, 0) * factor * 0.001  # small per-tick contribution
+        # Actually just add the CO2 for this specific recovery event
+        if battery.lead_content_kg > 0:
+            co2_saved = battery.lead_content_kg * recovery_rates["lead"] * 1.7
+        if battery.lithium_content_kg > 0:
+            co2_saved += battery.lithium_content_kg * recovery_rates["lithium"] * 5.3
+        if battery.copper_content_kg > 0:
+            co2_saved += battery.copper_content_kg * recovery_rates["copper"] * 3.5
+        if battery.cobalt_content_kg > 0:
+            co2_saved += battery.cobalt_content_kg * recovery_rates["cobalt"] * 8.1
+        self.total_co2_avoided_kg += co2_saved

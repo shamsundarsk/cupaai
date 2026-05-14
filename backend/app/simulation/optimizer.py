@@ -174,50 +174,81 @@ def generate_recommendations(plant: PlantSimulator) -> dict:
 
 
 def _calculate_efficiency(plant: PlantSimulator) -> dict:
-    """Calculate current plant efficiency metrics."""
+    """Calculate current plant efficiency metrics from REAL tracked data."""
     total_recovery = sum(plant.recovery_totals.values())
     total_revenue = sum(plant.revenue_totals.values())
+    total_input = plant.total_input_weight_kg
+    total_waste = plant.total_waste_kg
     
-    # Throughput efficiency (items processed per tick)
-    throughput = total_recovery / max(plant.tick_count, 1) * 120  # per minute
+    # Throughput: kg recovered per minute of operation
+    sim_minutes = (plant.tick_count / 2) / 60  # ticks → seconds → minutes
+    throughput = total_recovery / max(sim_minutes, 0.1)
     
-    # Energy efficiency
+    # Energy efficiency: kWh consumed per kg recovered
     energy_per_kg = plant.total_energy_kwh / max(total_recovery, 0.1)
     
-    # Revenue efficiency
+    # Revenue efficiency: $ earned per kWh spent
     revenue_per_kwh = total_revenue / max(plant.total_energy_kwh, 0.1)
     
-    # Overall score (0-100)
-    score = min(100, max(0,
-        40 +  # base
-        min(20, throughput * 5) +  # throughput bonus
-        min(20, (2.0 - energy_per_kg) * 10) +  # energy bonus (lower = better)
-        min(20, revenue_per_kwh * 2)  # revenue bonus
-    ))
+    # Recovery rate: what % of input material was actually recovered
+    # Real plants achieve 60-85% overall (not 95%+ — that's only for lead specifically)
+    recovery_rate = (total_recovery / max(total_input, 0.1)) * 100
+    
+    # Overall efficiency score based on real benchmarks:
+    # - Good plant: 70-80% recovery, <2 kWh/kg, >$3/kWh revenue
+    # - Average plant: 55-70% recovery, 2-4 kWh/kg, $1-3/kWh
+    # - Poor plant: <55% recovery, >4 kWh/kg, <$1/kWh
+    score = 0
+    if recovery_rate > 70: score += 30
+    elif recovery_rate > 55: score += 20
+    elif recovery_rate > 40: score += 10
+    
+    if energy_per_kg < 2: score += 25
+    elif energy_per_kg < 4: score += 15
+    elif energy_per_kg < 6: score += 5
+    
+    if revenue_per_kwh > 3: score += 25
+    elif revenue_per_kwh > 1.5: score += 15
+    elif revenue_per_kwh > 0.5: score += 5
+    
+    # Uptime bonus (items completed / items entered)
+    completion_rate = (plant.total_items_completed / max(plant.total_items_entered, 1)) * 100
+    if completion_rate > 80: score += 20
+    elif completion_rate > 60: score += 10
+    elif completion_rate > 40: score += 5
     
     return {
-        'overall_score': round(score, 1),
+        'overall_score': round(min(100, score), 1),
         'throughput_kg_per_min': round(throughput, 2),
         'energy_per_kg_kwh': round(energy_per_kg, 3),
         'revenue_per_kwh': round(revenue_per_kwh, 2),
-        'uptime_percent': 95.0,  # simulated
+        'recovery_rate_percent': round(recovery_rate, 1),
+        'completion_rate_percent': round(completion_rate, 1),
     }
 
 
 def _calculate_waste(plant: PlantSimulator) -> dict:
-    """Calculate waste metrics."""
+    """Calculate waste metrics from REAL tracked data."""
     total_recovery = sum(plant.recovery_totals.values())
-    estimated_input = total_recovery / 0.92
-    waste_kg = estimated_input - total_recovery
+    total_input = plant.total_input_weight_kg
+    total_waste = plant.total_waste_kg
+    
+    # Real recovery rate = recovered / input
+    recovery_rate = (total_recovery / max(total_input, 0.1)) * 100
+    waste_rate = (total_waste / max(total_input, 0.1)) * 100
+    
+    # The remainder is material still in the system (not yet processed)
+    in_system = total_input - total_recovery - total_waste
     
     return {
-        'total_input_kg': round(estimated_input, 2),
+        'total_input_kg': round(total_input, 2),
         'total_recovered_kg': round(total_recovery, 2),
-        'total_waste_kg': round(waste_kg, 2),
-        'recovery_rate_percent': round((total_recovery / max(estimated_input, 0.1)) * 100, 1),
-        'waste_rate_percent': round((waste_kg / max(estimated_input, 0.1)) * 100, 1),
-        'co2_from_waste_kg': round(waste_kg * 2.5, 2),  # CO2 from landfilling waste
-        'potential_recovery_kg': round(waste_kg * 0.4, 2),  # 40% of waste could be recovered with optimization
+        'total_waste_kg': round(total_waste, 2),
+        'in_system_kg': round(max(in_system, 0), 2),
+        'recovery_rate_percent': round(recovery_rate, 1),
+        'waste_rate_percent': round(waste_rate, 1),
+        'co2_from_waste_kg': round(total_waste * 2.1, 2),  # landfilling produces ~2.1 kg CO2/kg
+        'potential_recovery_kg': round(total_waste * 0.25, 2),  # realistically 25% of waste could be recovered with better tech
     }
 
 

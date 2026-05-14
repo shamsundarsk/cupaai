@@ -61,6 +61,10 @@ export interface PlantTelemetry {
   total_energy_kwh: number
   plant_risk_score: number
   events: string[]
+  total_input_weight_kg: number
+  total_waste_kg: number
+  total_items_entered: number
+  total_items_completed: number
 }
 
 interface PlantState {

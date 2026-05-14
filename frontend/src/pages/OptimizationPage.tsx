@@ -22,12 +22,14 @@ interface OptimizationData {
     throughput_kg_per_min: number
     energy_per_kg_kwh: number
     revenue_per_kwh: number
-    uptime_percent: number
+    recovery_rate_percent: number
+    completion_rate_percent: number
   }
   waste_analysis: {
     total_input_kg: number
     total_recovered_kg: number
     total_waste_kg: number
+    in_system_kg: number
     recovery_rate_percent: number
     waste_rate_percent: number
     co2_from_waste_kg: number
@@ -133,34 +135,53 @@ export function OptimizationPage() {
               <MetricRow label="Throughput" value={`${efficiency?.throughput_kg_per_min.toFixed(2) || 0} kg/min`} />
               <MetricRow label="Energy/kg" value={`${efficiency?.energy_per_kg_kwh.toFixed(3) || 0} kWh`} />
               <MetricRow label="Revenue/kWh" value={`$${efficiency?.revenue_per_kwh.toFixed(2) || 0}`} />
-              <MetricRow label="Uptime" value={`${efficiency?.uptime_percent || 0}%`} />
+              <MetricRow label="Recovery Rate" value={`${efficiency?.recovery_rate_percent.toFixed(1) || 0}%`} />
+              <MetricRow label="Completion" value={`${efficiency?.completion_rate_percent.toFixed(1) || 0}%`} />
             </div>
           </div>
         </div>
 
         {/* Waste Analysis */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">🗑️ Waste Analysis</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-3">🗑️ Material Flow Analysis</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-xs text-text-muted">Total Input</span>
               <span className="text-xs font-mono text-text-primary">{waste?.total_input_kg.toFixed(1) || 0} kg</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-text-muted">Recovered</span>
+              <span className="text-xs text-text-muted">↳ Recovered</span>
               <span className="text-xs font-mono text-accent-green">{waste?.total_recovered_kg.toFixed(1) || 0} kg</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-text-muted">Waste Generated</span>
+              <span className="text-xs text-text-muted">↳ Waste</span>
               <span className="text-xs font-mono text-hazard-red">{waste?.total_waste_kg.toFixed(1) || 0} kg</span>
             </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-text-muted">↳ In Process</span>
+              <span className="text-xs font-mono text-accent-cyan">{waste?.in_system_kg.toFixed(1) || 0} kg</span>
+            </div>
+
+            {/* Stacked bar — fills 100% with all three segments */}
             <div className="h-3 bg-bg-primary rounded-full overflow-hidden flex">
-              <div className="h-full bg-accent-green" style={{ width: `${waste?.recovery_rate_percent || 0}%` }} />
-              <div className="h-full bg-hazard-red" style={{ width: `${waste?.waste_rate_percent || 0}%` }} />
+              {(() => {
+                const total = (waste?.total_input_kg || 0)
+                const rec = ((waste?.total_recovered_kg || 0) / Math.max(total, 0.1)) * 100
+                const wst = ((waste?.total_waste_kg || 0) / Math.max(total, 0.1)) * 100
+                const sys = ((waste?.in_system_kg || 0) / Math.max(total, 0.1)) * 100
+                return (
+                  <>
+                    <div className="h-full bg-accent-green transition-all duration-500" style={{ width: `${rec}%` }} title={`Recovered: ${rec.toFixed(1)}%`} />
+                    <div className="h-full bg-hazard-red transition-all duration-500" style={{ width: `${wst}%` }} title={`Waste: ${wst.toFixed(1)}%`} />
+                    <div className="h-full bg-accent-cyan/50 transition-all duration-500" style={{ width: `${sys}%` }} title={`In Process: ${sys.toFixed(1)}%`} />
+                  </>
+                )
+              })()}
             </div>
             <div className="flex justify-between text-[9px]">
-              <span className="text-accent-green">Recovery: {waste?.recovery_rate_percent.toFixed(1) || 0}%</span>
+              <span className="text-accent-green">Recovered: {waste?.recovery_rate_percent.toFixed(1) || 0}%</span>
               <span className="text-hazard-red">Waste: {waste?.waste_rate_percent.toFixed(1) || 0}%</span>
+              <span className="text-accent-cyan">In Process: {waste && waste.total_input_kg > 0 ? ((waste.in_system_kg / waste.total_input_kg) * 100).toFixed(1) : 0}%</span>
             </div>
             {waste && waste.potential_recovery_kg > 0 && (
               <div className="mt-2 p-2 bg-accent-green/10 rounded border border-accent-green/20">

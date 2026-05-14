@@ -12,7 +12,10 @@ export function SustainabilityPage() {
   const energy = telemetry?.total_energy_kwh || 0
   const recovery = telemetry?.recovery_totals || {}
   const totalRecovered = Object.values(recovery).reduce((a, b) => a + b, 0)
-  const efficiency = totalRecovered > 0 ? Math.min(97, 85 + (totalRecovered / 100)) : 0
+  const totalInput = telemetry?.total_input_weight_kg || 0
+  const totalWaste = telemetry?.total_waste_kg || 0
+  // Real efficiency derived from actual tracked input vs recovered output
+  const efficiency = totalInput > 0 ? (totalRecovered / totalInput) * 100 : 0
 
   // Equivalent metrics for context
   const treesEquivalent = Math.floor(co2 / 22) // 1 tree absorbs ~22kg CO2/year

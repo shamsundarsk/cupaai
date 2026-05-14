@@ -16,7 +16,7 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.0,
         "plastic_pct": 0.08,
         "voltage_nominal": 12.6,
-        "health_weights": {"normal": 0.70, "degraded": 0.22, "damaged": 0.08},
+        "health_weights": {"normal": 0.88, "degraded": 0.10, "damaged": 0.02},
     },
     MaterialType.LITHIUM_ION: {
         "weight_range": (1.5, 45.0),
@@ -26,7 +26,7 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.15,
         "plastic_pct": 0.12,
         "voltage_nominal": 3.7,
-        "health_weights": {"normal": 0.60, "degraded": 0.25, "damaged": 0.15},
+        "health_weights": {"normal": 0.78, "degraded": 0.16, "damaged": 0.06},
     },
     MaterialType.PCB: {
         "weight_range": (0.3, 2.0),
@@ -36,7 +36,7 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.01,
         "plastic_pct": 0.30,
         "voltage_nominal": 0.0,
-        "health_weights": {"normal": 0.85, "degraded": 0.12, "damaged": 0.03},
+        "health_weights": {"normal": 0.92, "degraded": 0.07, "damaged": 0.01},
     },
     MaterialType.COPPER_HEAVY: {
         "weight_range": (2.0, 15.0),
@@ -46,7 +46,7 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.0,
         "plastic_pct": 0.15,
         "voltage_nominal": 0.0,
-        "health_weights": {"normal": 0.90, "degraded": 0.08, "damaged": 0.02},
+        "health_weights": {"normal": 0.95, "degraded": 0.04, "damaged": 0.01},
     },
     MaterialType.PLASTIC: {
         "weight_range": (0.5, 5.0),
@@ -56,7 +56,7 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.0,
         "plastic_pct": 0.85,
         "voltage_nominal": 0.0,
-        "health_weights": {"normal": 0.95, "degraded": 0.04, "damaged": 0.01},
+        "health_weights": {"normal": 0.97, "degraded": 0.025, "damaged": 0.005},
     },
     MaterialType.HAZARDOUS: {
         "weight_range": (2.0, 20.0),
@@ -66,18 +66,18 @@ COMPOSITION_TEMPLATES = {
         "cobalt_pct": 0.02,
         "plastic_pct": 0.10,
         "voltage_nominal": 3.2,
-        "health_weights": {"normal": 0.10, "degraded": 0.30, "damaged": 0.60},
+        "health_weights": {"normal": 0.20, "degraded": 0.40, "damaged": 0.40},
     },
 }
 
-# Intake distribution — what arrives at the plant
+# Intake distribution — realistic mix for a battery/e-waste recycling facility
 INTAKE_DISTRIBUTION = {
-    MaterialType.LEAD_ACID: 0.35,
-    MaterialType.LITHIUM_ION: 0.25,
-    MaterialType.PCB: 0.10,
+    MaterialType.LEAD_ACID: 0.45,      # Most common — car batteries dominate volume
+    MaterialType.LITHIUM_ION: 0.20,    # Growing but still less common than lead-acid
+    MaterialType.PCB: 0.12,
     MaterialType.COPPER_HEAVY: 0.10,
-    MaterialType.PLASTIC: 0.12,
-    MaterialType.HAZARDOUS: 0.08,
+    MaterialType.PLASTIC: 0.10,
+    MaterialType.HAZARDOUS: 0.03,      # Real plants see ~1-3% pre-flagged hazardous
 }
 
 
