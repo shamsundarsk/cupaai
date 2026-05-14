@@ -22,37 +22,62 @@ export function PlantScene({ onStationClick, modalOpen = false }: PlantSceneProp
   const alerts = telemetry?.hazard_alerts || []
 
   return (
-    <Canvas shadows>
+    <Canvas shadows camera={{ position: [20, 18, 20], fov: 45 }}>
       <PerspectiveCamera makeDefault position={[20, 18, 20]} fov={45} />
       <OrbitControls
         enablePan={true}
         enableZoom={true}
         enableRotate={true}
         minDistance={10}
-        maxDistance={50}
+        maxDistance={60}
         maxPolarAngle={Math.PI / 2.2}
-        target={[0, 0, 0]}
+        target={[5, 0, 4]}
       />
 
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[10, 15, 10]} intensity={0.8} castShadow shadow-mapSize={2048} />
-      <pointLight position={[-5, 8, -5]} intensity={0.3} color="#00d9ff" />
+      {/* Bright industrial lighting */}
+      <ambientLight intensity={0.7} color="#f0f9ff" />
+      <directionalLight
+        position={[15, 20, 10]}
+        intensity={1.4}
+        color="#ffffff"
+        castShadow
+        shadow-mapSize={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-25}
+        shadow-camera-right={25}
+        shadow-camera-top={25}
+        shadow-camera-bottom={-25}
+      />
+      <directionalLight position={[-10, 15, -10]} intensity={0.5} color="#dbeafe" />
+      <hemisphereLight args={['#dbeafe', '#475569', 0.6]} />
 
       <Floor />
 
-      {/* === ZONE LABELS (floating text showing areas) === */}
-      <Html position={[-10, 0.1, -3]} center>
-        <div className="pointer-events-none text-[8px] font-bold uppercase tracking-[0.3em] text-blue-400/60">INPUT ZONE</div>
-      </Html>
-      <Html position={[11, 0.1, -5]} center>
-        <div className="pointer-events-none text-[8px] font-bold uppercase tracking-[0.3em] text-amber-400/60">PROCESSING</div>
-      </Html>
-      <Html position={[22, 0.1, -6]} center>
-        <div className="pointer-events-none text-[8px] font-bold uppercase tracking-[0.3em] text-green-400/60">RECOVERY</div>
-      </Html>
-      <Html position={[4, 0.1, 12]} center>
-        <div className="pointer-events-none text-[8px] font-bold uppercase tracking-[0.3em] text-red-400/60">HAZARD ZONE</div>
-      </Html>
+      {/* === ZONE LABELS === */}
+      {!modalOpen && (
+        <>
+          <Html position={[-9, 0.5, -3]} center>
+            <div className="pointer-events-none px-3 py-1 rounded-md bg-blue-600 text-white text-[10px] font-bold uppercase tracking-[0.3em] shadow-lg border-2 border-blue-300">
+              1. INPUT ZONE
+            </div>
+          </Html>
+          <Html position={[12, 0.5, -5.5]} center>
+            <div className="pointer-events-none px-3 py-1 rounded-md bg-amber-500 text-white text-[10px] font-bold uppercase tracking-[0.3em] shadow-lg border-2 border-amber-300">
+              2. PROCESSING
+            </div>
+          </Html>
+          <Html position={[22, 0.5, -6.5]} center>
+            <div className="pointer-events-none px-3 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-[0.3em] shadow-lg border-2 border-emerald-300">
+              3. RECOVERY
+            </div>
+          </Html>
+          <Html position={[4, 0.5, 12]} center>
+            <div className="pointer-events-none px-3 py-1 rounded-md bg-red-600 text-white text-[10px] font-bold uppercase tracking-[0.3em] shadow-lg border-2 border-red-300 animate-pulse">
+              HAZARD ZONE
+            </div>
+          </Html>
+        </>
+      )}
 
       {/* INTAKE */}
       <Machine3D id="intake" position={[-12, 0, 0]} size={[3, 1.5, 2]} color="#3b82f6" label="Intake"

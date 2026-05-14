@@ -17,12 +17,12 @@ class PlantEvent:
     def to_log_string(self) -> str:
         ts = time.strftime("%H:%M:%S", time.localtime(self.timestamp))
         prefix = {
-            "info": "ℹ️",
-            "warning": "⚠️",
-            "hazard": "🔴",
-            "success": "✅",
-            "revenue": "💰",
-        }.get(self.severity, "•")
+            "info": "[INFO]",
+            "warning": "[WARN]",
+            "hazard": "[HAZARD]",
+            "success": "[OK]",
+            "revenue": "[REV]",
+        }.get(self.severity, "[*]")
         return f"[{ts}] {prefix} {self.message}"
 
 

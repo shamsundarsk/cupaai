@@ -1,5 +1,6 @@
 import { usePlantStore } from '../store/plantStore'
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { Inbox, Settings, TrendingUp, ScrollText } from 'lucide-react'
 
 export function OverviewPage() {
   const telemetry = usePlantStore((s) => s.telemetry)
@@ -62,7 +63,10 @@ export function OverviewPage() {
       <div className="grid grid-cols-2 gap-3">
         {/* Incoming Materials */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">📥 What's Entering the Plant</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+            <Inbox size={15} strokeWidth={1.8} className="text-accent-cyan" />
+            What's Entering the Plant
+          </h3>
           <p className="text-xs text-text-muted mb-3">Materials currently at intake and inspection</p>
           
           {intakeBatteries.length === 0 ? (
@@ -92,7 +96,10 @@ export function OverviewPage() {
 
         {/* Process Pipeline Status */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">⚙️ Processing Pipeline</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+            <Settings size={15} strokeWidth={1.8} className="text-accent-amber" />
+            Processing Pipeline
+          </h3>
           <p className="text-xs text-text-muted mb-3">What's happening at each stage right now</p>
           
           <div className="space-y-1.5">
@@ -119,7 +126,10 @@ export function OverviewPage() {
       <div className="grid grid-cols-2 gap-3">
         {/* Revenue Trend */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-1">💰 Revenue Trend</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+            <TrendingUp size={15} strokeWidth={1.8} className="text-revenue-green" />
+            Revenue Trend
+          </h3>
           <p className="text-xs text-text-muted mb-3">Cumulative income from material recovery</p>
           {revenueHistory.length > 5 ? (
             <div className="h-[120px]">
@@ -138,7 +148,10 @@ export function OverviewPage() {
 
         {/* Event Log */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-1">📋 Recent Events</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+            <ScrollText size={15} strokeWidth={1.8} className="text-accent-cyan" />
+            Recent Events
+          </h3>
           <p className="text-xs text-text-muted mb-3">What just happened in the plant</p>
           <div className="space-y-1 max-h-[120px] overflow-y-auto">
             {events.length === 0 ? (

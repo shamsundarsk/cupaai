@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Volume2, VolumeX, Zap } from 'lucide-react'
 import { usePlantStore } from '../store/plantStore'
 import { useSound } from '../hooks/useSound'
 
@@ -46,9 +47,9 @@ export function Header() {
         {/* Sound toggle */}
         <button
           onClick={() => { const on = toggleSound(); setSoundOn(on) }}
-          className="px-2 py-1 rounded bg-bg-card border border-border-subtle text-[9px] text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+          className="p-1.5 rounded bg-bg-card border border-border-subtle text-text-muted hover:text-text-primary transition-colors cursor-pointer"
         >
-          {soundOn ? '🔊' : '🔇'}
+          {soundOn ? <Volume2 size={13} strokeWidth={1.8} /> : <VolumeX size={13} strokeWidth={1.8} />}
         </button>
 
         {/* Connection indicator */}
@@ -62,9 +63,10 @@ export function Header() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleInjectHazard}
-          className="px-3 py-1.5 bg-hazard-red/8 border border-hazard-red/30 rounded text-[10px] text-hazard-red hover:bg-hazard-red/15 transition-all cursor-pointer font-medium uppercase tracking-wider"
+          className="px-3 py-1.5 bg-hazard-red/8 border border-hazard-red/30 rounded text-[10px] text-hazard-red hover:bg-hazard-red/15 transition-all cursor-pointer font-medium uppercase tracking-wider flex items-center gap-1.5"
         >
-          ⚡ Inject Hazard
+          <Zap size={12} strokeWidth={2} />
+          Inject Hazard
         </motion.button>
       </div>
     </header>

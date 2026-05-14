@@ -1,3 +1,4 @@
+import { Play } from 'lucide-react'
 import { useStoryStore } from '../store/storyStore'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -7,8 +8,8 @@ const STEPS_PREVIEW = [
   { id: 2, title: 'Scrap Intake', page: 'Overview' },
   { id: 3, title: 'Live Plant Floor', page: 'Plant Twin' },
   { id: 4, title: 'AI Routing', page: 'Plant Twin' },
-  { id: 5, title: '⚡ Hazard Detected', page: 'Safety' },
-  { id: 6, title: '🚨 Emergency Reroute', page: 'Safety' },
+  { id: 5, title: 'Hazard Detected', page: 'Safety' },
+  { id: 6, title: 'Emergency Reroute', page: 'Safety' },
   { id: 7, title: 'Predictive Simulation', page: 'Simulation' },
   { id: 8, title: 'Revenue & Lead', page: 'Revenue' },
   { id: 9, title: 'AI Optimization', page: 'Optimization' },
@@ -36,7 +37,17 @@ export function StoryModePage() {
           disabled={isPlaying}
           className="px-5 py-2.5 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-sm text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer font-medium disabled:opacity-50"
         >
-          {isPlaying ? '● Playing...' : '▶ Start Guided Demo'}
+          {isPlaying ? (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-accent-cyan pulse-live" />
+              Playing...
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5">
+              <Play size={13} strokeWidth={2} />
+              Start Guided Demo
+            </span>
+          )}
         </button>
       </div>
 

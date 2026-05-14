@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FileDown } from 'lucide-react'
 import { usePlantStore } from '../store/plantStore'
 
 /**
@@ -136,9 +137,16 @@ export function ReportPage() {
         <button
           onClick={handleExportPDF}
           disabled={generating}
-          className="px-4 py-2 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-xs text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer font-medium disabled:opacity-50"
+          className="px-4 py-2 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-xs text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer font-medium disabled:opacity-50 flex items-center gap-1.5"
         >
-          {generating ? 'Generating...' : '📄 Export PDF Report'}
+          {generating ? (
+            'Generating...'
+          ) : (
+            <>
+              <FileDown size={13} strokeWidth={1.8} />
+              Export PDF Report
+            </>
+          )}
         </button>
       </div>
 

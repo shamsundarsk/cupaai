@@ -1,48 +1,67 @@
 /**
- * Factory floor with grid pattern.
+ * Factory floor — bright industrial environment with clear zone separation.
  */
-import { useRef } from 'react'
-import * as THREE from 'three'
 
 export function Floor() {
   return (
     <group>
-      {/* Main floor */}
+      {/* Main floor — light industrial grey */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[5, -0.5, 4]} receiveShadow>
-        <planeGeometry args={[45, 25]} />
-        <meshStandardMaterial color="#0f1419" roughness={0.9} />
+        <planeGeometry args={[50, 30]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.85} metalness={0.05} />
       </mesh>
 
-      {/* Grid lines */}
+      {/* Grid lines - darker for contrast */}
       <gridHelper
-        args={[45, 45, '#1a2332', '#1a2332']}
+        args={[50, 50, '#64748b', '#94a3b8']}
         position={[5, -0.49, 4]}
       />
 
-      {/* Zone markers */}
-      {/* Intake zone */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-10, -0.48, 0]}>
+      {/* === COLORED ZONE FLOORS === */}
+
+      {/* INPUT ZONE — Blue */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-9, -0.48, 0]}>
         <planeGeometry args={[8, 5]} />
-        <meshStandardMaterial color="#1e3a5f" transparent opacity={0.3} />
+        <meshStandardMaterial color="#3b82f6" transparent opacity={0.25} />
+      </mesh>
+      {/* Zone border */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-9, -0.47, 0]}>
+        <ringGeometry args={[3.9, 4, 4]} />
+        <meshStandardMaterial color="#1e40af" />
       </mesh>
 
-      {/* Processing zone */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[11, -0.48, 2]}>
-        <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial color="#3d2e0a" transparent opacity={0.2} />
+      {/* PROCESSING ZONE — Amber */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[12, -0.48, 1]}>
+        <planeGeometry args={[10, 12]} />
+        <meshStandardMaterial color="#f59e0b" transparent opacity={0.2} />
       </mesh>
 
-      {/* Recovery zone */}
+      {/* RECOVERY ZONE — Green */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[22, -0.48, 4]}>
         <planeGeometry args={[8, 18]} />
-        <meshStandardMaterial color="#0a3d1a" transparent opacity={0.2} />
+        <meshStandardMaterial color="#10b981" transparent opacity={0.2} />
       </mesh>
 
-      {/* Hazard zone */}
+      {/* HAZARD ZONE — Red */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[4, -0.48, 9]}>
         <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial color="#3d0a0a" transparent opacity={0.3} />
+        <meshStandardMaterial color="#ef4444" transparent opacity={0.3} />
       </mesh>
+
+      {/* === FLOOR MARKINGS — Yellow safety stripes === */}
+      {/* Border around hazard zone */}
+      {[-2.3, 2.3].map((x, i) => (
+        <mesh key={`h-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[4 + x, -0.46, 9]}>
+          <planeGeometry args={[0.15, 5]} />
+          <meshStandardMaterial color="#fbbf24" />
+        </mesh>
+      ))}
+      {[6.5, 11.5].map((z, i) => (
+        <mesh key={`hz-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[4, -0.46, z]}>
+          <planeGeometry args={[5, 0.15]} />
+          <meshStandardMaterial color="#fbbf24" />
+        </mesh>
+      ))}
     </group>
   )
 }

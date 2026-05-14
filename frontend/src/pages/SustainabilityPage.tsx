@@ -1,4 +1,5 @@
 import { usePlantStore } from '../store/plantStore'
+import { Globe, Trash2, Zap, Leaf, Recycle } from 'lucide-react'
 import { AreaChart, Area, ResponsiveContainer } from 'recharts'
 
 /**
@@ -32,7 +33,8 @@ export function SustainabilityPage() {
       {/* Key Impact Metrics */}
       <div className="grid grid-cols-3 gap-3">
         <ImpactCard
-          icon="🌍"
+          Icon={Globe}
+          iconColor="text-accent-green"
           title="CO₂ Emissions Avoided"
           value={`${(co2 / 1000).toFixed(3)} tonnes`}
           explanation="By recycling instead of mining new materials"
@@ -40,7 +42,8 @@ export function SustainabilityPage() {
           color="text-accent-green"
         />
         <ImpactCard
-          icon="🗑️"
+          Icon={Trash2}
+          iconColor="text-accent-cyan"
           title="Landfill Diverted"
           value={`${(landfill / 1000).toFixed(3)} tonnes`}
           explanation="Toxic waste kept out of the ground"
@@ -48,7 +51,8 @@ export function SustainabilityPage() {
           color="text-accent-cyan"
         />
         <ImpactCard
-          icon="⚡"
+          Icon={Zap}
+          iconColor="text-accent-amber"
           title="Energy Consumed"
           value={`${energy.toFixed(1)} kWh`}
           explanation="Total plant energy usage this shift"
@@ -59,7 +63,10 @@ export function SustainabilityPage() {
 
       {/* Why This Matters */}
       <div className="glass-panel p-4">
-        <h3 className="text-sm font-semibold text-text-primary mb-3">🌱 Why Recycling Beats Mining</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <Leaf size={15} strokeWidth={1.8} className="text-accent-green" />
+          Why Recycling Beats Mining
+        </h3>
         <div className="grid grid-cols-3 gap-4">
           <ComparisonCard
             material="Lead"
@@ -114,7 +121,10 @@ export function SustainabilityPage() {
 
         {/* Circular Economy Impact */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-2">♻️ Circular Economy Contribution</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+            <Recycle size={15} strokeWidth={1.8} className="text-accent-green" />
+            Circular Economy Contribution
+          </h3>
           <p className="text-xs text-text-muted mb-3">Materials returned to the supply chain</p>
           
           <div className="space-y-2">
@@ -135,12 +145,12 @@ export function SustainabilityPage() {
 
 // --- Components ---
 
-function ImpactCard({ icon, title, value, explanation, equivalent, color }: {
-  icon: string; title: string; value: string; explanation: string; equivalent: string; color: string
+function ImpactCard({ Icon, iconColor, title, value, explanation, equivalent, color }: {
+  Icon: any; iconColor: string; title: string; value: string; explanation: string; equivalent: string; color: string
 }) {
   return (
     <div className="glass-panel p-4">
-      <div className="text-2xl mb-2">{icon}</div>
+      <Icon size={24} strokeWidth={1.6} className={`${iconColor} mb-2`} />
       <div className="text-[10px] text-text-muted uppercase tracking-wider">{title}</div>
       <div className={`text-xl font-bold font-mono ${color} mt-1`}>{value}</div>
       <div className="text-[10px] text-text-muted mt-1">{explanation}</div>

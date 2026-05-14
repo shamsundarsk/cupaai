@@ -1,5 +1,6 @@
 import { usePlantStore } from '../store/plantStore'
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts'
+import { BarChart3 } from 'lucide-react'
 
 /**
  * Revenue & Recovery Page — shows the money story clearly.
@@ -132,7 +133,10 @@ export function RevenuePage() {
 
       {/* Bottom — Detailed Recovery Table */}
       <div className="glass-panel p-4">
-        <h3 className="text-sm font-semibold text-text-primary mb-1">📊 Material Recovery Breakdown</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+          <BarChart3 size={15} strokeWidth={1.8} className="text-accent-cyan" />
+          Material Recovery Breakdown
+        </h3>
         <p className="text-xs text-text-muted mb-3">Detailed view of what's been recovered and its market value</p>
 
         <div className="overflow-x-auto">

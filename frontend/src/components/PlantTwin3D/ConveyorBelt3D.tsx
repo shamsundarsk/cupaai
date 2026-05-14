@@ -1,5 +1,5 @@
 /**
- * 3D Conveyor belt with animated texture.
+ * 3D Conveyor belt — prominent, animated, clearly visible.
  */
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
@@ -12,11 +12,10 @@ interface ConveyorBelt3DProps {
   color?: string
 }
 
-export function ConveyorBelt3D({ start, end, active, color = '#2a3441' }: ConveyorBelt3DProps) {
+export function ConveyorBelt3D({ start, end, active, color = '#fbbf24' }: ConveyorBelt3DProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const textureOffsetRef = useRef(0)
 
-  // Calculate belt geometry
   const dx = end[0] - start[0]
   const dz = end[2] - start[2]
   const length = Math.sqrt(dx * dx + dz * dz)
@@ -24,72 +23,124 @@ export function ConveyorBelt3D({ start, end, active, color = '#2a3441' }: Convey
   const midX = (start[0] + end[0]) / 2
   const midZ = (start[2] + end[2]) / 2
 
-  // Create belt texture with stripes
+  // High-contrast belt texture with bold stripes
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas')
-    canvas.width = 128
-    canvas.height = 32
+    canvas.width = 256
+    canvas.height = 64
     const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = '#1a2332'
-    ctx.fillRect(0, 0, 128, 32)
-    // Stripes
-    for (let i = 0; i < 128; i += 16) {
-      ctx.fillStyle = active ? '#00d9ff' : '#2a3441'
-      ctx.fillRect(i, 0, 8, 32)
+
+    // Base belt color
+    ctx.fillStyle = active ? '#2d3748' : '#475569'
+    ctx.fillRect(0, 0, 256, 64)
+
+    // Bright yellow safety stripes
+    const stripeColor = active ? color : '#94a3b8'
+    for (let i = 0; i < 256; i += 32) {
+      ctx.fillStyle = stripeColor
+      ctx.beginPath()
+      ctx.moveTo(i, 0)
+      ctx.lineTo(i + 24, 0)
+      ctx.lineTo(i + 12, 64)
+      ctx.lineTo(i - 12, 64)
+      ctx.closePath()
+      ctx.fill()
     }
+
+    // Edge highlight
+    ctx.fillStyle = active ? '#1e293b' : '#334155'
+    ctx.fillRect(0, 0, 256, 4)
+    ctx.fillRect(0, 60, 256, 4)
+
     const tex = new THREE.CanvasTexture(canvas)
     tex.wrapS = THREE.RepeatWrapping
     tex.wrapT = THREE.RepeatWrapping
-    tex.repeat.set(length / 2, 1)
+    tex.repeat.set(length / 1.5, 1)
     return tex
-  }, [active, length])
+  }, [active, length, color])
 
-  // Animate texture offset for movement
   useFrame((_, delta) => {
     if (active && texture) {
-      textureOffsetRef.current += delta * 0.8
+      textureOffsetRef.current += delta * 1.2
       texture.offset.x = textureOffsetRef.current
     }
   })
 
+  const beltHeight = 0.5
+  const beltWidth = 1.0
+
   return (
     <group>
-      {/* Belt surface */}
+      {/* Belt surface — wider and more visible */}
       <mesh
         ref={meshRef}
-        position={[midX, 0.15, midZ]}
+        position={[midX, beltHeight, midZ]}
         rotation={[0, -angle, 0]}
         castShadow
+        receiveShadow
       >
-        <boxGeometry args={[length, 0.1, 0.6]} />
+        <boxGeometry args={[length, 0.15, beltWidth]} />
         <meshStandardMaterial
           map={texture}
-          emissive={active ? color === '#ef4444' ? '#ef4444' : '#00d9ff' : '#000000'}
-          emissiveIntensity={active ? 0.2 : 0}
+          emissive={active ? color : '#000'}
+          emissiveIntensity={active ? 0.15 : 0}
+          metalness={0.3}
+          roughness={0.6}
         />
       </mesh>
 
-      {/* Side rails */}
-      <mesh position={[midX, 0.25, midZ - 0.35]} rotation={[0, -angle, 0]}>
-        <boxGeometry args={[length, 0.2, 0.05]} />
-        <meshStandardMaterial color="#374151" metalness={0.8} roughness={0.3} />
+      {/* Side rails — bright safety yellow */}
+      <mesh position={[midX, beltHeight + 0.18, midZ - beltWidth / 2 - 0.05]} rotation={[0, -angle, 0]}>
+        <boxGeometry args={[length, 0.25, 0.08]} />
+        <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.2} metalness={0.5} roughness={0.4} />
       </mesh>
-      <mesh position={[midX, 0.25, midZ + 0.35]} rotation={[0, -angle, 0]}>
-        <boxGeometry args={[length, 0.2, 0.05]} />
-        <meshStandardMaterial color="#374151" metalness={0.8} roughness={0.3} />
+      <mesh position={[midX, beltHeight + 0.18, midZ + beltWidth / 2 + 0.05]} rotation={[0, -angle, 0]}>
+        <boxGeometry args={[length, 0.25, 0.08]} />
+        <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.2} metalness={0.5} roughness={0.4} />
       </mesh>
 
-      {/* Support legs */}
-      {[0.25, 0.75].map((t, i) => {
+      {/* Steel support frame */}
+      {[0.15, 0.5, 0.85].map((t, i) => {
         const lx = start[0] + dx * t
         const lz = start[2] + dz * t
         return (
-          <mesh key={i} position={[lx, -0.15, lz]}>
-            <boxGeometry args={[0.1, 0.5, 0.1]} />
-            <meshStandardMaterial color="#1f2937" metalness={0.6} />
-          </mesh>
+          <group key={i}>
+            <mesh position={[lx, beltHeight - 0.3, lz - beltWidth / 2 - 0.05]}>
+              <boxGeometry args={[0.12, 0.6, 0.12]} />
+              <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.4} />
+            </mesh>
+            <mesh position={[lx, beltHeight - 0.3, lz + beltWidth / 2 + 0.05]}>
+              <boxGeometry args={[0.12, 0.6, 0.12]} />
+              <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.4} />
+            </mesh>
+          </group>
         )
       })}
+
+      {/* Direction arrows on the belt when active */}
+      {active && length > 2 && (
+        <group position={[midX, beltHeight + 0.09, midZ]} rotation={[0, -angle, 0]}>
+          {Array.from({ length: Math.floor(length / 1.5) }).map((_, i) => {
+            const x = -length / 2 + 0.75 + i * 1.5
+            return (
+              <mesh key={i} position={[x, 0, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+                <coneGeometry args={[0.18, 0.3, 3]} />
+                <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
+              </mesh>
+            )
+          })}
+        </group>
+      )}
+
+      {/* End rollers */}
+      <mesh position={[start[0], beltHeight, start[2]]} rotation={[Math.PI / 2, 0, -angle]}>
+        <cylinderGeometry args={[0.18, 0.18, beltWidth + 0.2, 12]} />
+        <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.2} />
+      </mesh>
+      <mesh position={[end[0], beltHeight, end[2]]} rotation={[Math.PI / 2, 0, -angle]}>
+        <cylinderGeometry args={[0.18, 0.18, beltWidth + 0.2, 12]} />
+        <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.2} />
+      </mesh>
     </group>
   )
 }

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { AlertCircle } from 'lucide-react'
 import { usePlantStore } from '../../store/plantStore'
 
 export function HazardPanel() {
@@ -45,7 +46,7 @@ export function HazardPanel() {
         ) : (
           alerts.slice(-4).map((alert, i) => (
             <div key={i} className="flex items-center gap-2 text-[10px] p-1.5 bg-hazard-red/10 rounded border border-hazard-red/20">
-              <span className="text-hazard-red">🔴</span>
+              <AlertCircle size={11} strokeWidth={2} className="text-hazard-red flex-shrink-0" />
               <span className="text-text-secondary truncate">{alert.message}</span>
             </div>
           ))

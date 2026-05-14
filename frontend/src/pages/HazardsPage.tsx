@@ -1,5 +1,6 @@
 import { usePlantStore } from '../store/plantStore'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
+import { Brain, Thermometer, Wind, Zap, Activity, AlertCircle, ScrollText, MapPin } from 'lucide-react'
 
 /**
  * Hazards Page — safety monitoring, AI predictions, and alert history.
@@ -18,8 +19,8 @@ export function HazardsPage() {
     .filter(b => b.hazard_score > 20)
     .sort((a, b) => b.hazard_score - a.hazard_score)
 
-  // Hazard events from log
-  const hazardEvents = events.filter(e => e.includes('🔴') || e.includes('HAZARD') || e.includes('⚠️'))
+  // Hazard events from log — match by keyword in our text-based log format
+  const hazardEvents = events.filter(e => e.includes('[HAZARD]') || e.includes('[WARN]') || e.toLowerCase().includes('hazard') || e.toLowerCase().includes('isolation'))
 
   return (
     <div className="space-y-4">
@@ -93,32 +94,39 @@ export function HazardsPage() {
 
         {/* How AI Detection Works */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-1">🧠 How AI Detection Works</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+            <Brain size={15} strokeWidth={1.8} className="text-accent-purple" />
+            How AI Detection Works
+          </h3>
           <p className="text-xs text-text-muted mb-3">Our system monitors these signals:</p>
           <div className="space-y-2">
             <DetectionRow
               signal="Temperature"
               description="Battery cell temperature rising above 70°C"
               threshold="Critical at 85°C"
-              icon="🌡️"
+              Icon={Thermometer}
+              iconColor="text-hazard-red"
             />
             <DetectionRow
               signal="Gas Levels"
               description="Toxic gas emissions from battery electrolyte"
               threshold="Alert at 30 ppm"
-              icon="💨"
+              Icon={Wind}
+              iconColor="text-accent-amber"
             />
             <DetectionRow
               signal="Voltage Anomaly"
               description="Sudden voltage drops indicate cell failure"
               threshold="Below 2.5V"
-              icon="⚡"
+              Icon={Zap}
+              iconColor="text-accent-cyan"
             />
             <DetectionRow
               signal="Vibration"
               description="Abnormal machine vibration patterns"
               threshold="Above 10 Hz"
-              icon="📳"
+              Icon={Activity}
+              iconColor="text-accent-purple"
             />
           </div>
         </div>
@@ -128,7 +136,10 @@ export function HazardsPage() {
       <div className="grid grid-cols-2 gap-3">
         {/* At-Risk Batteries */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-2">🔴 Batteries Being Monitored</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+            <AlertCircle size={15} strokeWidth={1.8} className="text-hazard-red" />
+            Batteries Being Monitored
+          </h3>
           {riskyBatteries.length === 0 ? (
             <p className="text-xs text-text-muted italic">All batteries within safe parameters</p>
           ) : (
@@ -148,9 +159,9 @@ export function HazardsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-[10px] text-text-muted">
-                    <span>🌡️ {b.temperature_c.toFixed(1)}°C</span>
-                    <span>💨 {b.gas_ppm.toFixed(1)} ppm</span>
-                    <span>📍 {formatStation(b.current_station)}</span>
+                    <span className="flex items-center gap-1"><Thermometer size={10} /> {b.temperature_c.toFixed(1)}°C</span>
+                    <span className="flex items-center gap-1"><Wind size={10} /> {b.gas_ppm.toFixed(1)} ppm</span>
+                    <span className="flex items-center gap-1"><MapPin size={10} /> {formatStation(b.current_station)}</span>
                   </div>
                 </div>
               ))}
@@ -160,7 +171,10 @@ export function HazardsPage() {
 
         {/* Hazard Event History */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-2">📋 Safety Event Log</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+            <ScrollText size={15} strokeWidth={1.8} className="text-accent-cyan" />
+            Safety Event Log
+          </h3>
           <div className="space-y-1 max-h-[200px] overflow-y-auto">
             {hazardEvents.length === 0 ? (
               <p className="text-xs text-text-muted italic">No hazard events recorded</p>
@@ -180,12 +194,12 @@ export function HazardsPage() {
 
 // --- Helpers ---
 
-function DetectionRow({ signal, description, threshold, icon }: {
-  signal: string; description: string; threshold: string; icon: string
+function DetectionRow({ signal, description, threshold, Icon, iconColor }: {
+  signal: string; description: string; threshold: string; Icon: any; iconColor: string
 }) {
   return (
-    <div className="flex items-start gap-2 p-2 bg-bg-primary/50 rounded">
-      <span className="text-sm">{icon}</span>
+    <div className="flex items-start gap-2.5 p-2 bg-bg-primary/50 rounded">
+      <Icon size={15} strokeWidth={1.8} className={`${iconColor} mt-0.5`} />
       <div>
         <div className="text-[11px] text-text-primary font-medium">{signal}</div>
         <div className="text-[9px] text-text-muted">{description}</div>

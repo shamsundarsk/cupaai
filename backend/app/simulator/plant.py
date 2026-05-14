@@ -153,7 +153,7 @@ class PlantSimulator:
         self.batteries.append(battery)
         self.battery_ticks[battery.id] = 0
         self.event_bus.emit(
-            f"⚡ Damaged EV battery {battery.id} entered intake — monitoring initiated",
+            f"Damaged EV battery {battery.id} entered intake — monitoring initiated",
             severity="warning", station="intake", battery_id=battery.id
         )
         return battery.id
@@ -207,7 +207,7 @@ class PlantSimulator:
                 self.battery_ticks[battery.id] = 0
                 self.hazards_prevented += 1
                 self.event_bus.emit(
-                    f"🚨 HAZARD: {battery.id} rerouted to isolation (score: {battery.hazard_score:.0f})",
+                    f"HAZARD: {battery.id} rerouted to isolation (score: {battery.hazard_score:.0f})",
                     severity="hazard", station="hazard_isolation", battery_id=battery.id
                 )
             elif ticks_here >= required_ticks:
@@ -372,7 +372,7 @@ class PlantSimulator:
             self.revenue_totals["lead"] += revenue
             if recovered > 1.0:
                 self.event_bus.emit(
-                    f"💰 Lead recovered: {recovered:.2f} kg (${revenue:.2f}) [{rate*100:.0f}% yield]",
+                    f"Lead recovered: {recovered:.2f} kg (${revenue:.2f}) [{rate*100:.0f}% yield]",
                     severity="revenue", station="lead_furnace", battery_id=battery.id
                 )
 

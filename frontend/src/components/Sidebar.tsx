@@ -1,36 +1,40 @@
 import { NavLink } from 'react-router-dom'
 import { usePlantStore } from '../store/plantStore'
+import {
+  LayoutDashboard, Box, ShieldAlert, FlaskConical, Cpu,
+  History, DollarSign, Calculator, Leaf, Play, FileText
+} from 'lucide-react'
 
 const NAV_SECTIONS = [
   {
     title: 'Operations',
     items: [
-      { path: '/', label: 'Overview', icon: '◉' },
-      { path: '/plant', label: 'Plant Twin', icon: '⬡' },
-      { path: '/hazards', label: 'Safety', icon: '△' },
+      { path: '/', label: 'Overview', icon: LayoutDashboard },
+      { path: '/plant', label: 'Plant Twin', icon: Box },
+      { path: '/hazards', label: 'Safety', icon: ShieldAlert },
     ],
   },
   {
     title: 'Intelligence',
     items: [
-      { path: '/simulation', label: 'Simulation', icon: '◈' },
-      { path: '/optimization', label: 'Optimize', icon: '⟡' },
-      { path: '/shifts', label: 'Shift History', icon: '◫' },
+      { path: '/simulation', label: 'Simulation', icon: FlaskConical },
+      { path: '/optimization', label: 'Optimize', icon: Cpu },
+      { path: '/shifts', label: 'Shift History', icon: History },
     ],
   },
   {
     title: 'Business',
     items: [
-      { path: '/revenue', label: 'Revenue', icon: '◆' },
-      { path: '/calculator', label: 'ROI Calculator', icon: '▣' },
-      { path: '/sustainability', label: 'ESG', icon: '○' },
+      { path: '/revenue', label: 'Revenue', icon: DollarSign },
+      { path: '/calculator', label: 'ROI Calculator', icon: Calculator },
+      { path: '/sustainability', label: 'ESG', icon: Leaf },
     ],
   },
   {
     title: 'Tools',
     items: [
-      { path: '/story', label: 'Story Mode', icon: '▶' },
-      { path: '/report', label: 'Reports', icon: '◧' },
+      { path: '/story', label: 'Story Mode', icon: Play },
+      { path: '/report', label: 'Reports', icon: FileText },
     ],
   },
 ]
@@ -75,22 +79,25 @@ export function Sidebar() {
             <div className="px-4 py-1.5">
               <span className="text-[8px] text-text-muted uppercase tracking-[0.2em] font-semibold">{section.title}</span>
             </div>
-            {section.items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-2.5 mx-2 px-2.5 py-[7px] rounded-md transition-all duration-100 ${
-                    isActive
-                      ? 'bg-accent-cyan/8 text-accent-cyan'
-                      : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
-                  }`
-                }
-              >
-                <span className="text-[10px] w-3.5 text-center opacity-50">{item.icon}</span>
-                <span className="text-[11px] font-medium">{item.label}</span>
-              </NavLink>
-            ))}
+            {section.items.map((item) => {
+              const Icon = item.icon
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 mx-2 px-2.5 py-[7px] rounded-md transition-all duration-100 ${
+                      isActive
+                        ? 'bg-accent-cyan/8 text-accent-cyan'
+                        : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                    }`
+                  }
+                >
+                  <Icon size={13} strokeWidth={1.8} />
+                  <span className="text-[11px] font-medium">{item.label}</span>
+                </NavLink>
+              )
+            })}
           </div>
         ))}
       </nav>

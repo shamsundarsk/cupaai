@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Zap, Recycle, Target, Cpu, Lightbulb, CheckCircle2 } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -119,7 +120,10 @@ export function OptimizationPage() {
       <div className="grid grid-cols-2 gap-3">
         {/* Efficiency Score */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">⚡ Plant Efficiency</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+            <Zap size={15} strokeWidth={1.8} className="text-accent-cyan" />
+            Plant Efficiency
+          </h3>
           <div className="flex items-center gap-4 mb-3">
             <div className="relative w-20 h-20">
               <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -143,7 +147,10 @@ export function OptimizationPage() {
 
         {/* Waste Analysis */}
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">🗑️ Material Flow Analysis</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+            <Recycle size={15} strokeWidth={1.8} className="text-accent-green" />
+            Material Flow Analysis
+          </h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-xs text-text-muted">Total Input</span>
@@ -185,8 +192,9 @@ export function OptimizationPage() {
             </div>
             {waste && waste.potential_recovery_kg > 0 && (
               <div className="mt-2 p-2 bg-accent-green/10 rounded border border-accent-green/20">
-                <span className="text-[10px] text-accent-green">
-                  💡 With optimization: could recover additional {waste.potential_recovery_kg.toFixed(1)} kg
+                <span className="text-[10px] text-accent-green flex items-center gap-1.5">
+                  <Lightbulb size={11} strokeWidth={1.8} />
+                  With optimization: could recover additional {waste.potential_recovery_kg.toFixed(1)} kg
                 </span>
               </div>
             )}
@@ -197,7 +205,10 @@ export function OptimizationPage() {
       {/* Optimization Potential */}
       {potential && (potential.estimated_revenue_improvement_percent > 0 || potential.estimated_waste_reduction_percent > 0) && (
         <div className="glass-panel-glow p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-2">🎯 Optimization Potential</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+            <Target size={15} strokeWidth={1.8} className="text-accent-cyan" />
+            Optimization Potential
+          </h3>
           <p className="text-xs text-text-muted mb-3">If all recommendations are implemented:</p>
           <div className="grid grid-cols-3 gap-3">
             <PotentialCard label="Revenue Improvement" value={`+${potential.estimated_revenue_improvement_percent}%`} color="text-revenue-green" />
@@ -210,7 +221,10 @@ export function OptimizationPage() {
       {/* AI Recommendations */}
       <div className="glass-panel p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-text-primary">🤖 AI Recommendations</h3>
+          <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+            <Cpu size={15} strokeWidth={1.8} className="text-accent-purple" />
+            AI Recommendations
+          </h3>
           <span className="text-[10px] text-text-muted">{data?.total_recommendations || 0} suggestions • {data?.high_priority_count || 0} high priority</span>
         </div>
 
@@ -233,7 +247,10 @@ export function OptimizationPage() {
                 </div>
                 <p className="text-[11px] text-text-secondary mb-1.5">{rec.description}</p>
                 <div className="flex items-center gap-4 text-[10px]">
-                  <span className="text-accent-cyan">💡 {rec.action}</span>
+                  <span className="text-accent-cyan flex items-center gap-1.5">
+                    <Lightbulb size={10} strokeWidth={1.8} />
+                    {rec.action}
+                  </span>
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-[10px]">
                   <span className="text-text-muted">Impact: {rec.impact}</span>
@@ -244,7 +261,7 @@ export function OptimizationPage() {
           </div>
         ) : (
           <div className="text-center py-6">
-            <span className="text-2xl">✅</span>
+            <CheckCircle2 size={32} strokeWidth={1.5} className="text-accent-green mx-auto" />
             <p className="text-xs text-text-muted mt-2">All systems optimal — no recommendations at this time</p>
           </div>
         )}

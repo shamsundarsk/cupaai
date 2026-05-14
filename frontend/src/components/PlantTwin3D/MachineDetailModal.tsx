@@ -3,6 +3,11 @@
  * Explains what the machine does and shows its current live status.
  */
 import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Inbox, ScanLine, Cpu, ArrowRight, Cog, Magnet, Scale,
+  Flame, Battery, Hexagon, Recycle, Radiation, Package,
+  AlertTriangle, BarChart3, ArrowDown, ArrowUp
+} from 'lucide-react'
 import { usePlantStore } from '../../store/plantStore'
 
 interface MachineDetailModalProps {
@@ -13,7 +18,8 @@ interface MachineDetailModalProps {
 // Machine info database
 const MACHINE_INFO: Record<string, {
   name: string
-  icon: string
+  Icon: any
+  iconColor: string
   whatItDoes: string
   howItWorks: string
   inputs: string
@@ -23,7 +29,8 @@ const MACHINE_INFO: Record<string, {
 }> = {
   intake: {
     name: 'Scrap Intake Bay',
-    icon: '📥',
+    Icon: Inbox,
+    iconColor: 'text-blue-500',
     whatItDoes: 'Receives incoming batteries, electronics, and e-waste from collection trucks.',
     howItWorks: 'Materials are weighed, logged, and placed on the inspection conveyor. Each item gets a unique tracking ID.',
     inputs: 'Raw e-waste: EV batteries, phones, laptops, PCBs, cables, industrial scrap',
@@ -33,7 +40,8 @@ const MACHINE_INFO: Record<string, {
   },
   inspection: {
     name: 'Inspection Station',
-    icon: '🔍',
+    Icon: ScanLine,
+    iconColor: 'text-cyan-500',
     whatItDoes: 'Examines each item to determine its type, condition, and potential hazards.',
     howItWorks: 'Sensors measure weight, voltage (for batteries), temperature, and visual condition. Items are tagged as normal, degraded, or damaged.',
     inputs: 'Unclassified scrap items',
@@ -43,7 +51,8 @@ const MACHINE_INFO: Record<string, {
   },
   sorting: {
     name: 'AI Smart Sorting',
-    icon: '🤖',
+    Icon: Cpu,
+    iconColor: 'text-purple-500',
     whatItDoes: 'Uses AI to classify materials and decide the optimal processing route for each item.',
     howItWorks: 'Machine learning model analyzes item properties (type, weight, health, composition) and assigns a route: lead furnace, lithium recovery, copper recovery, plastic line, or hazard isolation.',
     inputs: 'Classified items from inspection',
@@ -53,7 +62,8 @@ const MACHINE_INFO: Record<string, {
   },
   conveyor_a: {
     name: 'Main Conveyor Belt',
-    icon: '➡️',
+    Icon: ArrowRight,
+    iconColor: 'text-amber-500',
     whatItDoes: 'Transports sorted materials from the sorting station to their assigned processing line.',
     howItWorks: 'Motorized belt running at 1.2 m/s. Items are tracked by position sensors. Belt speed adjusts based on downstream capacity.',
     inputs: 'Sorted items from AI sorting',
@@ -63,7 +73,8 @@ const MACHINE_INFO: Record<string, {
   },
   shredder: {
     name: 'Industrial Shredder',
-    icon: '⚙️',
+    Icon: Cog,
+    iconColor: 'text-orange-500',
     whatItDoes: 'Breaks down batteries and electronics into small fragments for easier material separation.',
     howItWorks: 'Rotating steel blades shred items into 5-20mm pieces. Dust extraction prevents airborne contamination. Motor draws 25kW under load.',
     inputs: 'Whole batteries, PCBs, electronic housings',
@@ -73,7 +84,8 @@ const MACHINE_INFO: Record<string, {
   },
   magnetic_sep: {
     name: 'Magnetic Separator',
-    icon: '🧲',
+    Icon: Magnet,
+    iconColor: 'text-yellow-500',
     whatItDoes: 'Uses powerful magnets to pull ferrous metals (iron, steel) out of the shredded material stream.',
     howItWorks: 'Rare-earth magnets on a rotating drum attract iron-containing fragments. Non-magnetic materials pass through to the next stage.',
     inputs: 'Shredded material mix',
@@ -83,7 +95,8 @@ const MACHINE_INFO: Record<string, {
   },
   density_sep: {
     name: 'Density Separator',
-    icon: '⚖️',
+    Icon: Scale,
+    iconColor: 'text-orange-500',
     whatItDoes: 'Separates remaining materials by their density (weight per volume) using air or liquid flotation.',
     howItWorks: 'Heavy materials (metals) sink while light materials (plastics) float. Different density cuts route materials to specific recovery lines.',
     inputs: 'Non-ferrous material stream',
@@ -93,7 +106,8 @@ const MACHINE_INFO: Record<string, {
   },
   lead_furnace: {
     name: 'Lead Smelting Furnace',
-    icon: '🔥',
+    Icon: Flame,
+    iconColor: 'text-red-500',
     whatItDoes: 'Melts lead from lead-acid batteries at 450-900°C to produce pure lead ingots for resale.',
     howItWorks: 'Battery plates are charged into the furnace. Lead melts at 327°C, is refined to 97%+ purity, and cast into ingots. Slag is removed. This is the PRIMARY REVENUE SOURCE — lead sells at $2.10/kg.',
     inputs: 'Lead-acid battery plates and grids',
@@ -103,7 +117,8 @@ const MACHINE_INFO: Record<string, {
   },
   lithium_recovery: {
     name: 'Lithium Recovery Cell',
-    icon: '🔋',
+    Icon: Battery,
+    iconColor: 'text-purple-500',
     whatItDoes: 'Extracts lithium compounds from lithium-ion battery materials using hydrometallurgical processes.',
     howItWorks: 'Shredded cathode material is dissolved in acid, then lithium is precipitated as lithium carbonate. Process takes 2-4 hours per batch.',
     inputs: 'Shredded Li-ion cathode material (NMC, LFP)',
@@ -113,7 +128,8 @@ const MACHINE_INFO: Record<string, {
   },
   copper_recovery: {
     name: 'Copper Recovery Station',
-    icon: '🟠',
+    Icon: Hexagon,
+    iconColor: 'text-orange-600',
     whatItDoes: 'Recovers copper from PCBs, wiring, and battery connectors through electrochemical processes.',
     howItWorks: 'Copper-rich material is dissolved in acid, then pure copper is electroplated onto cathodes. Achieves 99%+ purity.',
     inputs: 'PCBs, copper wiring, battery connectors',
@@ -123,7 +139,8 @@ const MACHINE_INFO: Record<string, {
   },
   plastic_line: {
     name: 'Plastic Recycling Line',
-    icon: '♻️',
+    Icon: Recycle,
+    iconColor: 'text-green-500',
     whatItDoes: 'Washes, melts, and pelletizes recovered plastics from battery casings and electronic housings.',
     howItWorks: 'Plastics are sorted by type (PP, ABS, PC), washed to remove contaminants, melted in an extruder, and cut into pellets for resale.',
     inputs: 'Sorted plastic fragments from separation',
@@ -133,7 +150,8 @@ const MACHINE_INFO: Record<string, {
   },
   hazard_isolation: {
     name: 'Hazard Isolation Bay',
-    icon: '☢️',
+    Icon: Radiation,
+    iconColor: 'text-red-600',
     whatItDoes: 'Contains batteries and materials that the AI flagged as dangerous — preventing thermal runaway and toxic exposure.',
     howItWorks: 'Isolated in fireproof containment with CO₂ suppression, temperature monitoring, and gas extraction. Items cool down before safe disposal or controlled processing.',
     inputs: 'Batteries with thermal anomalies, swelling, or gas leaks',
@@ -143,7 +161,8 @@ const MACHINE_INFO: Record<string, {
   },
   storage: {
     name: 'Final Material Storage',
-    icon: '📦',
+    Icon: Package,
+    iconColor: 'text-cyan-500',
     whatItDoes: 'Stores recovered materials ready for sale to manufacturers and commodity markets.',
     howItWorks: 'Lead ingots, copper cathodes, lithium carbonate, and plastic pellets are weighed, quality-checked, and stored for shipment.',
     inputs: 'Purified recovered materials from all recovery lines',
@@ -187,7 +206,9 @@ export function MachineDetailModal({ stationId, onClose }: MachineDetailModalPro
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{info.icon}</span>
+              <div className={`p-2 rounded-lg bg-bg-primary/50 ${info.iconColor}`}>
+                <info.Icon size={24} strokeWidth={1.8} />
+              </div>
               <div>
                 <h2 className="text-lg font-bold text-text-primary">{info.name}</h2>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -219,11 +240,17 @@ export function MachineDetailModal({ stationId, onClose }: MachineDetailModalPro
           {/* Inputs / Outputs */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="p-3 bg-bg-primary/50 rounded-lg">
-              <h4 className="text-[10px] text-text-muted uppercase mb-1">📥 Inputs</h4>
+              <h4 className="text-[10px] text-text-muted uppercase mb-1 flex items-center gap-1.5">
+                <ArrowDown size={11} strokeWidth={1.8} className="text-blue-400" />
+                Inputs
+              </h4>
               <p className="text-xs text-text-secondary">{info.inputs}</p>
             </div>
             <div className="p-3 bg-bg-primary/50 rounded-lg">
-              <h4 className="text-[10px] text-text-muted uppercase mb-1">📤 Outputs</h4>
+              <h4 className="text-[10px] text-text-muted uppercase mb-1 flex items-center gap-1.5">
+                <ArrowUp size={11} strokeWidth={1.8} className="text-green-400" />
+                Outputs
+              </h4>
               <p className="text-xs text-text-secondary">{info.outputs}</p>
             </div>
           </div>
@@ -264,7 +291,10 @@ export function MachineDetailModal({ stationId, onClose }: MachineDetailModalPro
                       <span className="text-text-muted">{b.weight_kg.toFixed(1)} kg</span>
                       <span className={b.health === 'damaged' ? 'text-hazard-red' : 'text-text-secondary'}>{b.health}</span>
                       {b.hazard_score > 20 && (
-                        <span className="text-hazard-red font-mono">⚠ {b.hazard_score.toFixed(0)}%</span>
+                        <span className="text-hazard-red font-mono flex items-center gap-1">
+                          <AlertTriangle size={10} strokeWidth={2} />
+                          {b.hazard_score.toFixed(0)}%
+                        </span>
                       )}
                     </div>
                   </div>
@@ -276,11 +306,17 @@ export function MachineDetailModal({ stationId, onClose }: MachineDetailModalPro
           {/* Hazards & Capacity */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 bg-hazard-red/5 border border-hazard-red/20 rounded-lg">
-              <h4 className="text-[10px] text-hazard-red uppercase mb-1">⚠️ Hazards</h4>
+              <h4 className="text-[10px] text-hazard-red uppercase mb-1 flex items-center gap-1.5">
+                <AlertTriangle size={11} strokeWidth={1.8} />
+                Hazards
+              </h4>
               <p className="text-xs text-text-secondary">{info.hazards}</p>
             </div>
             <div className="p-3 bg-bg-primary/50 rounded-lg">
-              <h4 className="text-[10px] text-text-muted uppercase mb-1">📊 Capacity</h4>
+              <h4 className="text-[10px] text-text-muted uppercase mb-1 flex items-center gap-1.5">
+                <BarChart3 size={11} strokeWidth={1.8} />
+                Capacity
+              </h4>
               <p className="text-xs text-text-secondary">{info.capacity}</p>
             </div>
           </div>

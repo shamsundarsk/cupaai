@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { TrendingUp, AlertTriangle, Wrench, FlaskConical, Play } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -98,7 +99,10 @@ export function SimulationPage() {
       {/* Forecast Charts */}
       <div className="grid grid-cols-2 gap-3">
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-1">📈 Revenue Forecast</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+            <TrendingUp size={15} strokeWidth={1.8} className="text-revenue-green" />
+            Revenue Forecast
+          </h3>
           <p className="text-xs text-text-muted mb-3">Predicted revenue trajectory over next 30 sim-minutes</p>
           {prediction?.revenue_trajectory && prediction.revenue_trajectory.length > 2 ? (
             <div className="h-[150px]">
@@ -117,7 +121,10 @@ export function SimulationPage() {
         </div>
 
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-1">⚠️ Risk Forecast</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+            <AlertTriangle size={15} strokeWidth={1.8} className="text-hazard-red" />
+            Risk Forecast
+          </h3>
           <p className="text-xs text-text-muted mb-3">Predicted plant risk over next 30 sim-minutes</p>
           {prediction?.risk_trajectory && prediction.risk_trajectory.length > 2 ? (
             <div className="h-[150px]">
@@ -139,7 +146,10 @@ export function SimulationPage() {
       {/* At-Risk Machines */}
       {prediction?.at_risk_machines && prediction.at_risk_machines.length > 0 && (
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-2">🔧 Machines Predicted to Need Attention</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+            <Wrench size={15} strokeWidth={1.8} className="text-accent-amber" />
+            Machines Predicted to Need Attention
+          </h3>
           <div className="grid grid-cols-3 gap-2">
             {prediction.at_risk_machines.map((m, i) => (
               <div key={i} className="p-2 bg-bg-primary/50 rounded border border-accent-amber/20">
@@ -157,7 +167,10 @@ export function SimulationPage() {
 
       {/* What-If Section */}
       <div className="glass-panel-glow p-4">
-        <h3 className="text-sm font-semibold text-text-primary mb-1">🧪 What-If Scenario Engine</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+          <FlaskConical size={15} strokeWidth={1.8} className="text-accent-cyan" />
+          What-If Scenario Engine
+        </h3>
         <p className="text-xs text-text-muted mb-4">Test changes before applying them — see the impact on revenue, risk, and waste</p>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
@@ -233,9 +246,16 @@ export function SimulationPage() {
         <button
           onClick={runWhatIf}
           disabled={whatIfLoading || (conveyorSpeed === 1.2 && intakeRate === 500 && !shutdownStation && furnaceTemp === 450 && shredderLoad === 70)}
-          className="px-4 py-2 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-xs text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed font-medium"
+          className="px-4 py-2 bg-accent-cyan/15 border border-accent-cyan/40 rounded text-xs text-accent-cyan hover:bg-accent-cyan/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed font-medium flex items-center gap-1.5"
         >
-          {whatIfLoading ? 'Simulating...' : '▶ Run Scenario'}
+          {whatIfLoading ? (
+            'Simulating...'
+          ) : (
+            <>
+              <Play size={11} strokeWidth={2} />
+              Run Scenario
+            </>
+          )}
         </button>
 
         {/* What-If Results */}
